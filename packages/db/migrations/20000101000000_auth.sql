@@ -2,7 +2,13 @@
 -- +goose StatementBegin
 CREATE SCHEMA IF NOT EXISTS auth;
 
-CREATE ROLE authenticated;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+        CREATE ROLE authenticated;
+    END IF;
+END
+$$;
 
 CREATE FUNCTION auth.uid() RETURNS uuid AS $func$
 BEGIN

@@ -2,7 +2,25 @@
 -- +goose StatementBegin
 
 -- Modify "env_aliases" table
-ALTER TABLE IF EXISTS "public"."env_aliases" RENAME COLUMN "is_name" TO "is_renamable";
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'env_aliases'
+          AND column_name = 'is_name'
+    ) AND NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'env_aliases'
+          AND column_name = 'is_renamable'
+    ) THEN
+        ALTER TABLE "public"."env_aliases" RENAME COLUMN "is_name" TO "is_renamable";
+    END IF;
+END
+$$;
 ALTER TABLE IF EXISTS "public"."env_aliases" ALTER COLUMN "env_id" SET NOT NULL;
 
 -- Create "env_builds" table

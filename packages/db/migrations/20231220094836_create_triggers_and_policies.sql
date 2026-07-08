@@ -5,7 +5,13 @@
 INSERT INTO public.tiers (id, name, vcpu, ram_mb, disk_mb, concurrent_instances) VALUES ('base_v1', 'Base tier', 2, 512, 512, 20);
 
 -- Create user for triggers
-CREATE USER trigger_user;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'trigger_user') THEN
+        CREATE USER trigger_user;
+    END IF;
+END
+$$;
 GRANT trigger_user TO postgres;
 
 GRANT CREATE, USAGE ON SCHEMA public TO trigger_user;
